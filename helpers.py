@@ -29,7 +29,7 @@ def binomial_tree_price_two_steps_calculation(r, t, qu, payoff_up_up, qd, payoff
 
 def black_scholes(r, S, K, T, sigma, option_type="call"):
     """
-    Calcuate the Black Scholes price of an option
+    Calculate the Black Scholes price of an option
     :param r: interest rate
     :param S: current asset price
     :param K: strike price of option
@@ -52,8 +52,25 @@ def black_scholes(r, S, K, T, sigma, option_type="call"):
         print("Ensure all parameters supplied are as expected")
 
 
+def verifiy_put_call_parity(call_price, put_price, stock_price, strike_price, time_to_maturity, interest_rate):
+    """
+    Function to verify the put call-parity on option price
+    :param call_price:
+    :param put_price:
+    :param stock_price: current price
+    :param strike_price: agreed price
+    :param time_to_maturity: time until the option expires
+    :param interest_rate: risk-free interest rate
+    :return:
+    """
+    return (call_price + strike_price * math.exp(-interest_rate * time_to_maturity)) == (put_price + stock_price)
+
+
+
 if __name__ == '__main__':
     binomial_tree_price_next_step(0.05, 1 / 3, 0.505, 0.988, 0, 0.988)
     binomial_tree_price_two_steps_calculation(0.05, 1 / 3, 0.505171, 13.483, 0.494829, 0, 0.988)
 
     black_scholes(0.12, 52, 50, 1/4, 0.3)
+    print()
+    black_scholes(0.05)
