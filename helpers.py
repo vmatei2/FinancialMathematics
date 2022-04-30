@@ -39,7 +39,9 @@ def black_scholes(r, S, K, T, sigma, option_type="call"):
     :return:
     """
     d1 = (np.log(S / K) + (r + sigma ** 2 / 2) * T) / (sigma * np.sqrt(T))
+    print(d1)
     d2 = d1 - sigma * np.sqrt(T)
+    print(d2)
 
     try:
         if option_type == "call":
@@ -71,6 +73,17 @@ if __name__ == '__main__':
     binomial_tree_price_next_step(0.05, 1 / 3, 0.505, 0.988, 0, 0.988)
     binomial_tree_price_two_steps_calculation(0.05, 1 / 3, 0.505171, 13.483, 0.494829, 0, 0.988)
 
-    black_scholes(0.12, 52, 50, 1/4, 0.3)
-    print()
-    black_scholes(0.05)
+
+    S = 90
+    K = 92
+    r = 0.04
+    sigma = 0.3
+    T = 1/3
+
+    c0 = black_scholes(r, S, K, T, sigma, "call")
+
+    p0 = black_scholes(r, S, K, T, sigma, "put")
+
+    print(verifiy_put_call_parity(c0, p0, S, K, T, r))
+
+
