@@ -39,9 +39,12 @@ def black_scholes(r, S, K, T, sigma, option_type="call"):
     :return:
     """
     d1 = (np.log(S / K) + (r + sigma ** 2 / 2) * T) / (sigma * np.sqrt(T))
-    print(d1)
+    print("d_+= ", d1)
     d2 = d1 - sigma * np.sqrt(T)
-    print(d2)
+    print("d_- = ", d2)
+
+    print("N(d_+= )", st.norm.cdf(d1, 0, 1))
+    print("N(d_-= ", st.norm.cdf(d2, 0, 1))
 
     try:
         if option_type == "call":
@@ -65,7 +68,12 @@ def verifiy_put_call_parity(call_price, put_price, stock_price, strike_price, ti
     :param interest_rate: risk-free interest rate
     :return:
     """
-    return (call_price + strike_price * math.exp(-interest_rate * time_to_maturity)) == (put_price + stock_price)
+
+    parity_holds = (call_price + strike_price * math.exp(-interest_rate * time_to_maturity)) == (put_price + stock_price)
+    if parity_holds:
+        print("Put-Call parity value= ", (put_price+stock_price))
+
+    return parity_holds
 
 
 
