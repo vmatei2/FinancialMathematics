@@ -102,18 +102,24 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
 
     C = S0 * d ** (np.arange(N, -1, -1)) * u ** (np.arange(0, N+1, 1))
 
-    C = np.maximum(K-C, np.zeros(N+1))
+    if option_type == "call":
+        C = np.maximum(C - K, np.zeros(N+1))
+    elif option_type == "put":
+        C = np.maximum(K-C, np.zeros(N+1))
 
     #  Step backwards through tree
     price_list = []
     for i in np.arange(N, 0, -1):
 
+        print("Pay-offs at node %f are:" % i)
         print(C[1:i+1])
         print(C[0:i])
+        print()
         C = disc * (q * C[1:i+1] + (1-q) * C[0:i])
         price_list.append(C)
-
+    print("Finaly Pay-off is: ")
     print(C)
+    print()
 
 
 
@@ -173,14 +179,15 @@ if __name__ == '__main__':
     binomial_tree_price_next_step(0.05, 1 / 3, 0.505, 0.988, 0, 0.988)
     binomial_tree_price_two_steps_calculation(0.05, 1 / 3, 0.505171, 13.483, 0.494829, 0, 0.988)
 
-    t = 1
-    N = 2
-    S0 = 50
-    K = 52
-    r = 0.05
+    t = 1/2
+    N = 3
+    S0 = 80
+    K = 87
+    r = 0.03
     p_up = 0.2
     p_down = 0.2
 
+    binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "call")
     binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "put")
 
 
