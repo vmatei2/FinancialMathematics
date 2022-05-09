@@ -52,6 +52,7 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
     print("Qu = (e^rt-d)/(u-d)")
     print("Qd = 1 - Qu")
     print("%f - %f / (%f-%f) = %f" % (np.exp(r*t), d, u, d, q))
+    print("Qd = " , 1-q)
     print()
 
     print("Now computing the tree branches")
