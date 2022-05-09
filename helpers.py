@@ -91,8 +91,6 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
                   "%f, %f, %f % f" % (i, binomial_tree_dict[i][0], binomial_tree_dict[i][1],
                                   binomial_tree_dict[i][2], binomial_tree_dict[i][3]))
 
-    C = S0* d ** (np.arange(N, -1, -1)) * u ** (np.arange(0, N+1, 1))
-
     # Initialise option values at maturity
     price_at_maturity = np.array(binomial_tree_dict[N])
     # payoffs at maturity
@@ -101,12 +99,15 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
     elif option_type == "put":
         payoffs = np.maximum(K - price_at_maturity, np.zeros(N+1))
 
+
     C = S0 * d ** (np.arange(N, -1, -1)) * u ** (np.arange(0, N+1, 1))
 
     if option_type == "call":
         C = np.maximum(C - K, np.zeros(N+1))
     elif option_type == "put":
         C = np.maximum(K-C, np.zeros(N+1))
+    elif option_type == "special":
+        C = np.maximum((C-30), np.zeros(N+1))**2
 
     #  Step backwards through tree
     price_list = []
@@ -180,16 +181,16 @@ if __name__ == '__main__':
     binomial_tree_price_next_step(0.05, 1 / 3, 0.505, 0.988, 0, 0.988)
     binomial_tree_price_two_steps_calculation(0.05, 1 / 3, 0.505171, 13.483, 0.494829, 0, 0.988)
 
-    t = 1/2
-    N = 3
-    S0 = 80
+    t = 2/12
+    N = 2
+    S0 = 30
     K = 87
-    r = 0.03
-    p_up = 0.2
-    p_down = 0.2
+    r = 0.05
+    p_up = 0.08
+    p_down = 0.10
 
     binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "call")
-    binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "put")
+    binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "special")
 
 
     ### Black Scholes Part
