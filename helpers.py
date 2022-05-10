@@ -27,7 +27,7 @@ def binomial_tree_price_two_steps_calculation(r, t, qu, payoff_up_up, qd, payoff
     return option_value
 
 
-def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, option_type="call"):
+def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, option_type="call", volatility=None):
 
     binomial_tree_dict = {}
     binomial_tree_dict['0'] = [S0]
@@ -37,12 +37,18 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
     S1_d = S0 - (S0 * down_probability)
     u = S1_u / S0
     d = S1_d / S0
-    print("First step is to calculate the up and down values: ")
-    print("U = %f/%f = %f" % (S1_u, S0, u))
-    print("D = %f/%f = %f" % (S1_d, S0, d))
+    if volatility is None:
+        print("First step is to calculate the up and down values: ")
+        print("U = %f/%f = %f" % (S1_u, S0, u))
+        print("D = %f/%f = %f" % (S1_d, S0, d))
+    elif volatility is not None:
+        print("Calculatung U and D with given volatility")
+        u = np.exp(volatility * np.sqrt(t))
+        d = np.exp(-volatility * np.sqrt(t))
 
-    disc = np.exp(-r*t)
-    q =  (np.exp(r*t)-d)/(u-d)
+    disc = np.exp(-(r)*t)
+    q = (np.exp(r*t)-d)/(u-d)
+
 
     print()
     print("Now let's check the market is arbitrage free: d < e^rt < u")
@@ -52,7 +58,7 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
     print("Qu = (e^rt-d)/(u-d)")
     print("Qd = 1 - Qu")
     print("%f - %f / (%f-%f) = %f" % (np.exp(r*t), d, u, d, q))
-    print("Qd = " , 1-q)
+    print("Qd = ", 1-q)
     print()
 
     print("Now computing the tree branches")
@@ -64,15 +70,15 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
 
         elif i == 1:
             previous_price = binomial_tree_dict[0][0]
-            binomial_tree_dict[i] = [previous_price - (previous_price * down_probability),
-                                        previous_price + previous_price * up_probability]
+            binomial_tree_dict[i] = [previous_price * d,
+                                        previous_price * u]
             print("At Step %f: prices are: %f, %f" % (i, binomial_tree_dict[i][0], binomial_tree_dict[i][1]))
 
         elif i == 2:
             previous_price_down = binomial_tree_dict[i-1][0]
             previous_price_up = binomial_tree_dict[i-1][1]
-            binomial_tree_dict[i] = [previous_price_down - (previous_price_down * down_probability), previous_price_down + (previous_price_down* up_probability),
-                                        previous_price_up + (previous_price_up * up_probability)]
+            binomial_tree_dict[i] = [previous_price_down * d, previous_price_down * u,
+                                        previous_price_up * u]
             print("At Step %f: prices are: "
                   "%f, %f, %f" % (i, binomial_tree_dict[i][0], binomial_tree_dict[i][1],
                                   binomial_tree_dict[i][2]))
@@ -82,10 +88,10 @@ def binomial_tree_calculation(r, S0, K, t, N, up_probability, down_probability, 
             previous_price_down_up = binomial_tree_dict[i-1][1]
             previous_price_up_up = binomial_tree_dict[i-1][2]
 
-            binomial_tree_dict[i] = [previous_price_down_down - (previous_price_down_down * down_probability),
-                                     previous_price_down_down + (previous_price_down_down * up_probability),
-                                     previous_price_down_up + (previous_price_down_up * up_probability),
-                                     previous_price_up_up + (previous_price_up_up * up_probability)]
+            binomial_tree_dict[i] = [previous_price_down_down * d,
+                                     previous_price_down_down * u,
+                                     previous_price_down_up * u,
+                                     previous_price_up_up * u]
 
             print("At Step %f: prices are: "
                   "%f, %f, %f % f" % (i, binomial_tree_dict[i][0], binomial_tree_dict[i][1],
@@ -181,15 +187,16 @@ if __name__ == '__main__':
     binomial_tree_price_next_step(0.05, 1 / 3, 0.505, 0.988, 0, 0.988)
     binomial_tree_price_two_steps_calculation(0.05, 1 / 3, 0.505171, 13.483, 0.494829, 0, 0.988)
 
-    t = 2/12
-    N = 2
-    S0 = 30
-    K = 87
-    r = 0.05
-    p_up = 0.08
-    p_down = 0.10
+    t = 3/12
+    N = 3
+    S0 = 20
+    K = 18
+    r = 0.15
+    volatility = 0.4
+    p_up = 0.06
+    p_down = 0.05
 
-    binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "call")
+    binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "put", volatility)
     binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "special")
 
 
