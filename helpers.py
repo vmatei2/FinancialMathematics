@@ -187,16 +187,16 @@ if __name__ == '__main__':
     binomial_tree_price_next_step(0.05, 1 / 3, 0.505, 0.988, 0, 0.988)
     binomial_tree_price_two_steps_calculation(0.05, 1 / 3, 0.505171, 13.483, 0.494829, 0, 0.988)
 
-    t = 3/12
-    N = 3
-    S0 = 20
-    K = 18
-    r = 0.15
-    volatility = 0.4
-    p_up = 0.06
-    p_down = 0.05
+    t = 1/3
+    N = 2
+    S0 = 40
+    K = 41
+    r = 0.06
+    volatility = 0.3
+    p_up = 0.25
+    p_down = 0.2
 
-    binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "put", volatility)
+    binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "call")
     binomial_tree_calculation(r, S0, K, t, N, p_up, p_down, "special")
 
 
