@@ -1,8 +1,10 @@
 import math
 import numpy as np
-
+import pandas as pd
+import yfinance as yf
+import pandas
 import scipy.stats as st
-
+import datetime
 
 def calculate_normal_distribution(number):
     norm_cdf = st.norm.cdf(number)
@@ -209,5 +211,22 @@ if __name__ == '__main__':
     c0 = black_scholes(r, S, K, T, sigma, "call")
     p0 = black_scholes(r, S, K, T, sigma, "put")
     print(verifiy_put_call_parity(c0, p0, S, K, T, r))
+
+
+    ### stack overflpow questions
+    StartDate_T = '2021-12-20'
+    EndDate_T = '2022-05-14'
+
+    df = yf.download('CSCO', start=StartDate_T, end=EndDate_T, rounding=True)
+    df.sort_values(by=['Date'], inplace=True, ascending=False)
+
+    df.reset_index(inplace=True)  # Make it no longer an Index
+
+    df['Date'] = df['Date'].dt.strftime('%Y/%m/%d')
+    df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d')
+
+    # df['Date'] = df['Date'].str.replace('-','/')   # Tried this also - but error re str
+
+    stop = 0
 
 
