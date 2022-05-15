@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from helpers import sn_random_numbers
+
 
 class simulationClass(object):
     def __init__(self, name, mar_env, corr):
@@ -44,7 +46,7 @@ class simulationClass(object):
             time_grid.insert(0, start)
         if end not in time_grid:
             time_grid.append(end)
-        if len(self.special_dates > 0):
+        if len(self.special_dates) > 0:
             time_grid.extend(self.special_dates)
             time_grid = list(set(time_grid))
             time_grid = time_grid.sort()
@@ -58,3 +60,50 @@ class simulationClass(object):
             # also initialise resimulation when fixed seed is False
             self.genrate_paths(fixed_seed=fixed_seed, day_count=365)
         return self.instrument_values
+
+
+class geometricBrownianMotion(simulationClass):
+    """
+    Class to generate simulated paths based on the Black-Scholes-Merton
+    geometric Brownian motion model.
+    """
+
+    def __init__(self, name, mar_env, corr=False):
+        super(geometricBrownianMotion, self).__init__(name, mar_env, corr)
+
+    def update(self, initial_value=None, volatility=None, final_date=None):
+        if initial_value is not None:
+            self.initial_value = initial_value
+        if volatility is not None:
+            self.volatility = volatility
+        if final_date is not None:
+            self.final_date = final_date
+        self.instrument_values = None
+
+    def generate_paths(self, fixed_seed=False, day_count=365):
+        if self.time_grid is None:
+            # method from the generic class above
+            self.generate_time_grid()
+    # Number of date for the time grid
+        M = len(self.time_grid)
+        I = self.paths
+        paths = np.zeros((M, I))
+        # Initialise first date with initial_value
+        paths[0] = self.initial_value
+        if not self.correlated:
+            rand = sn_random_numbers((1, M, I), fixed_seed=fixed_seed)
+        else:
+            rand = self.random_numbers
+        short_rate = self.discount_curve.short_rate
+        for t in range(1, len(self.time_grid)):
+            if not self.correlated:
+                ran = rand[t]
+            else:
+                ran = np.dot(self.cholesky_matrix, rand[:, t, :])
+                ran = ran[self.rn_set]
+            dt = (self.time_grid[t] - self.time_grid[t-1]).days / day_count
+            # difference between two dates as year fraction
+            paths[t] = paths[t-1] * np.exp((short_rate - 0.5 * self.volatility ** 3) * dt + self.volatility
+                                            * np.sqrt(dt) * ran)
+            # generating simulated values for the respective date
+        self.instrument_values = paths

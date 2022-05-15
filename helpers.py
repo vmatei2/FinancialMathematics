@@ -184,6 +184,31 @@ def verifiy_put_call_parity(call_price, put_price, stock_price, strike_price, ti
     return parity_holds
 
 
+def sn_random_numbers(shape, antithetic=True, moment_matching=True, fixed_seed=False):
+    """
+    Function to return an ndarray object of shape with random numbers that are distributed with a standard
+    normal distribution
+    :param shape:
+    :param antithetic:
+    :param moment_matching:
+    :param fixed_seed:
+    :return:
+    """
+    if fixed_seed:
+        np.random.seed(1000)
+    if antithetic:
+        ran = np.random.standard_normal((shape[0], shape[1], shape[2] // 2))
+        ran = np.concatenate((ran, -ran), axis=2)
+    else:
+        ran = np.random.standard_normal(shape)
+    if moment_matching:
+        ran = ran - np.mean(ran)
+        ran = ran / np.std(ran)
+    if shape[0] == 1:
+        return ran[0]
+    else:
+        return ran
+
 
 if __name__ == '__main__':
     binomial_tree_price_next_step(0.05, 1 / 3, 0.505, 0.988, 0, 0.988)
