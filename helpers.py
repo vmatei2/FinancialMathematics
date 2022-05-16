@@ -239,19 +239,6 @@ if __name__ == '__main__':
 
 
     ### stack overflpow questions
-    StartDate_T = '2021-12-20'
-    EndDate_T = '2022-05-14'
-
-    df = yf.download('CSCO', start=StartDate_T, end=EndDate_T, rounding=True)
-    df.sort_values(by=['Date'], inplace=True, ascending=False)
-
-    df.reset_index(inplace=True)  # Make it no longer an Index
-
-    df['Date'] = df['Date'].dt.strftime('%Y/%m/%d')
-    df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d')
-
-    # df['Date'] = df['Date'].str.replace('-','/')   # Tried this also - but error re str
-
-    stop = 0
-
+    test_list = [1, 2, 3, [4, 5], [6, 7], 8, 9]
+    
 
