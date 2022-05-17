@@ -2,7 +2,7 @@ import datetime as dt
 import time
 import matplotlib.pyplot as plt
 import seaborn as sns
-from classes.generic_simulation_class import geometricBrownianMotion
+from classes.generic_simulation_class import geometricBrownianMotion, jump_diffusion
 from constant_short_rate import constantShortRate
 
 class marketEnvironment(object):
@@ -33,10 +33,24 @@ class marketEnvironment(object):
 
     def add_environment(self, env):
         # overwrites existing values
-        self.constants.update(env.constant)
+        self.constants.update(env.constants)
         self.lists.update(env.lists)
         self.curves.update(env.curves)
 
+
+def plot_simulation_results(path1, path2, legend, title=None):
+    plt.figure(figsize=(12, 10))
+    p1 = plt.plot(gbm.time_grid, path1[:, :10], 'b')
+    p2 = plt.plot(gbm.time_grid, path2[:, :10], 'r-.')
+    l1 = plt.legend([p1[0], p2[0]],
+                    legend, loc=2)
+    plt.gca().add_artist(l1)
+    plt.xticks(rotation=30, fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.title(title, fontsize=20)
+    plt.xlabel("Month", fontsize=16)
+    plt.ylabel("Price", fontsize=16)
+    plt.show()
 
 if __name__ == '__main__':
     sns.set_style('darkgrid')
@@ -64,14 +78,23 @@ if __name__ == '__main__':
     gbm.update(volatility=higher_volatility)
     paths_2 = gbm.get_instrument_values()
 
-    plt.figure(figsize=(12, 10))
-    p1 = plt.plot(gbm.time_grid, paths_1[:, :10], 'b')
-    p2 = plt.plot(gbm.time_grid, paths_2[:, :10], 'r-.')
-    l1 = plt.legend([p1[0], p2[0]],
-                    ['low volatility=' +str(low_volatility), 'high volatility='+str(higher_volatility)], loc=2)
-    plt.gca().add_artist(l1)
-    plt.xticks(rotation=30, fontsize=15)
-    plt.title("Simulation with Geometric Brownian Motion paths")
-    plt.xlabel("Month", fontsize=16)
-    plt.ylabel("Price", fontsize=16)
-    plt.show()
+    legend = ['low volatility=' + str(low_volatility), 'high volatility=' + str(higher_volatility)]
+    plot_simulation_results(paths_1, paths_2, legend, "Simulation with Geometric Brownian Motion process")
+
+    me_jd = marketEnvironment('me_jd', dt.datetime(2021, 1, 1))
+    me_jd.add_constant('lambda', 0.3)
+    me_jd.add_constant('mu', -0.75)
+    me_jd.add_constant('delta', 0.1)
+
+    me_jd.add_environment(me_gbm)
+
+    jd = jump_diffusion('jd', me_jd)
+
+    paths_3 = jd.get_instrument_values()
+
+    jd.update(lamb=0.9)
+
+    paths_4 = jd.get_instrument_values()
+
+    legend = ['low intensity', 'high intensity']
+    plot_simulation_results(paths_3, paths_4, legend, "Simulation with jump diffusion process")
