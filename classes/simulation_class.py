@@ -2,7 +2,7 @@ import datetime as dt
 import time
 import matplotlib.pyplot as plt
 import seaborn as sns
-from classes.generic_simulation_class import geometricBrownianMotion, jump_diffusion
+from classes.generic_simulation_class import geometricBrownianMotion, jump_diffusion, square_root_diffusion
 from constant_short_rate import constantShortRate
 
 class marketEnvironment(object):
@@ -98,3 +98,31 @@ if __name__ == '__main__':
 
     legend = ['low intensity', 'high intensity']
     plot_simulation_results(paths_3, paths_4, legend, "Simulation with jump diffusion process")
+
+    # Square Root Diffusion
+    me_srd = marketEnvironment('me_srd', dt.datetime(2021, 1, 1))
+
+    me_srd.add_constant('initial_value', 0.25)
+    me_srd.add_constant('volatility', 0.05)
+    me_srd.add_constant('final_date', dt.datetime(2021,12,31))
+    me_srd.add_constant('currency', 'EUR')
+    me_srd.add_constant('frequency', 'W')
+    me_srd.add_constant('paths', 10000)
+
+    me_srd.add_constant('kappa', 4)
+    me_srd.add_constant('theta', 0.2)
+
+    me_srd.add_curve('discount_curve', constantShortRate('r', 0.0))
+
+    srd = square_root_diffusion('srd', me_srd)
+
+    # simulate the paths and select 10 of them
+    srd_paths = srd.get_instrument_values()[:, :10]
+
+    plt.figure(figsize=(12, 10))
+    plt.plot(srd.time_grid, srd_paths)
+    plt.axhline(me_srd.get_constant('theta'), color='r', ls='--', lw=2.0)
+    plt.xticks(rotation=30, fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.title("Simulated paths from square-root diffusion simulation (dashed line == long-term mean theta)", fontsize=18)
+    plt.show()
